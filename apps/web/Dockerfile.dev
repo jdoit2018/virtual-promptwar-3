@@ -1,0 +1,16 @@
+# Development Dockerfile for Next.js frontend
+# Used by docker-compose.yml — hot-reloads via volume mount
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies first (layer cache)
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copy source (overridden by volume mount in dev)
+COPY . .
+
+EXPOSE 3000
+CMD ["npm", "run", "dev"]

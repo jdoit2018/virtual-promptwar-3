@@ -1,0 +1,52 @@
+# ─── Dependencies ────────────────────────────────────────────────
+node_modules/
+.npm
+
+# ─── Build outputs ───────────────────────────────────────────────
+.next/
+dist/
+build/
+out/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Environment files ───────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ─── Google Cloud / Firebase ─────────────────────────────────────
+firebase-debug.log
+.firebase/
+service-account-key.json
+*-service-account.json
+gcp-key.json
+
+# ─── Turbo ───────────────────────────────────────────────────────
+.turbo/
+
+# ─── OS & Editor ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*.log
+*.swp
+*.swo
+
+# ─── Testing ─────────────────────────────────────────────────────
+coverage/
+.coverage
+htmlcov/
+
+# ─── Docker ──────────────────────────────────────────────────────
+.docker/
+
+# ─── Logs ────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
