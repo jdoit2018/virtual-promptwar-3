@@ -11,7 +11,9 @@
   "dependencies": {
     "next": "16.2.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "firebase": "^10.8.0",
+    "lucide-react": "^0.331.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

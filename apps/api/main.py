@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import settings
 from core.database import init_db
-from routers import auth, users, baselines, logs, goals, challenges, notifications
+from routers import auth, users, baselines, logs, goals, challenges, notifications, internal
 
 
 @asynccontextmanager
@@ -45,6 +45,7 @@ app.include_router(logs.router,          prefix="/api/logs",          tags=["Log
 app.include_router(goals.router,         prefix="/api/goals",         tags=["Goals"])
 app.include_router(challenges.router,    prefix="/api/challenges",    tags=["Challenges"])
 app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
+app.include_router(internal.router,      prefix="/api/internal",      tags=["Internal"])
 
 
 @app.get("/health", tags=["Health"])

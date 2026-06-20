@@ -18,8 +18,16 @@ async function seed() {
   await client.query(sql);
   console.log('✅ emission_factors seeded successfully');
 
-  const { rows } = await client.query('SELECT COUNT(*) FROM emission_factors');
-  console.log(`   → ${rows[0].count} factors in database`);
+  const challengesFile = path.join(__dirname, '../seed/eco_challenges.sql');
+  const challengesSql = fs.readFileSync(challengesFile, 'utf8');
+  await client.query(challengesSql);
+  console.log('✅ eco_challenges seeded successfully');
+
+  const { rows: factorRows } = await client.query('SELECT COUNT(*) FROM emission_factors');
+  console.log(`   → ${factorRows[0].count} factors in database`);
+
+  const { rows: challengeRows } = await client.query('SELECT COUNT(*) FROM eco_challenges');
+  console.log(`   → ${challengeRows[0].count} eco-challenges in database`);
 
   await client.end();
 }

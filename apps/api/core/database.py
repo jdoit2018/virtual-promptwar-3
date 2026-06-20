@@ -29,10 +29,14 @@ class Base(DeclarativeBase):
 
 
 async def init_db():
-    """Called on app startup — verifies DB connection."""
-    async with engine.connect() as conn:
-        await conn.execute(__import__("sqlalchemy").text("SELECT 1"))
-    print("✅ Database connection verified")
+    """Called on app startup -- verifies DB connection (non-fatal in dev)."""
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(__import__("sqlalchemy").text("SELECT 1"))
+        print("[OK] Database connection verified")
+    except Exception as e:
+        print(f"[WARN] Database not reachable: {e}")
+        print("   -> API will start in degraded mode (DB-dependent routes will fail)")
 
 
 async def get_db():
@@ -40,7 +44,5 @@ async def get_db():
     async with AsyncSessionLocal() as session:
         try:
             yield session
-            await session.commit()
-        except Exception:
-            await session.rollback()
-            raise
+        finally:
+            await session.close()

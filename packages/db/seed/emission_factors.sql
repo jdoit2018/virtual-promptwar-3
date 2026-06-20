@@ -46,7 +46,23 @@ INSERT INTO emission_factors (category, activity_type, unit, co2e_per_unit, regi
 ('consumption', 'laptop_unit',          'unit',  400.0000, 'GLOBAL', 'Dell LCA 2023',  '2024-01-01'),
 ('consumption', 'tv_unit',              'unit',  450.0000, 'GLOBAL', 'DEFRA 2024', '2024-01-01'),
 ('consumption', 'washing_machine_unit', 'unit',  210.0000, 'GLOBAL', 'DEFRA 2024', '2024-01-01'),
-('consumption', 'online_order_parcel',  'parcel',  0.4500, 'GLOBAL', 'DEFRA 2024', '2024-01-01')
+('consumption', 'online_order_parcel',  'parcel',  0.4500, 'GLOBAL', 'DEFRA 2024', '2024-01-01'),
+
+-- ── FRONTEND LOG OPTIONS MAPPINGS ─────────────────────────────────
+('transportation', 'gas_car',           'mile',    0.4040, 'GLOBAL', 'EPA 2024',   '2024-01-01'),
+('transportation', 'electric_car',      'mile',    0.0960, 'GLOBAL', 'EPA 2024',   '2024-01-01'),
+('transportation', 'public_bus',         'mile',    0.0890, 'GLOBAL', 'DEFRA 2024', '2024-01-01'),
+('transportation', 'train_metro',        'mile',    0.0350, 'GLOBAL', 'DEFRA 2024', '2024-01-01'),
+('diet', 'meal_meat_heavy',             'serving', 6.6100, 'GLOBAL', 'Poore & Nemecek 2018', '2024-01-01'),
+('diet', 'meal_flexitarian',            'serving', 1.2900, 'GLOBAL', 'Poore & Nemecek 2018', '2024-01-01'),
+('diet', 'meal_vegetarian',             'serving', 0.9400, 'GLOBAL', 'Poore & Nemecek 2018', '2024-01-01'),
+('diet', 'meal_vegan',                  'serving', 0.0700, 'GLOBAL', 'Poore & Nemecek 2018', '2024-01-01'),
+('energy', 'electricity_kwh',           'kwh',     0.2330, 'GLOBAL', 'EPA 2024',   '2024-01-01'),
+('energy', 'natural_gas_therms',        'therm',   5.9400, 'GLOBAL', 'DEFRA 2024', '2024-01-01'),
+('energy', 'heating_oil_gallons',       'gallon',  9.5400, 'GLOBAL', 'DEFRA 2024', '2024-01-01'),
+('consumption', 'fashion_purchases',    'item',    8.1000, 'GLOBAL', 'WRAP 2023',  '2024-01-01'),
+('consumption', 'electronics_purchases','unit',   70.0000, 'GLOBAL', 'Apple LCA 2023', '2024-01-01'),
+('consumption', 'general_consumption',  'parcel',  0.4500, 'GLOBAL', 'DEFRA 2024', '2024-01-01')
 
 ON CONFLICT (activity_type, region_code) DO UPDATE
   SET co2e_per_unit = EXCLUDED.co2e_per_unit,
