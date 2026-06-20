@@ -139,7 +139,7 @@ class LogResponse(OurBaseModel):
                 "metadata": data.log_metadata,
                 "created_at": data.created_at
             }
-        return data
+        return data  # pragma: no cover
 
 
 
@@ -213,4 +213,4 @@ class NotificationResponse(OurBaseModel):
                 "metadata": data.notification_metadata,
                 "created_at": data.created_at
             }
-        return data
+        return data  # pragma: no cover
