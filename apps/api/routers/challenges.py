@@ -4,20 +4,21 @@ Eco-challenge catalog and user participation progression.
 """
 
 from datetime import datetime
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+
 from core.database import get_db
 from core.firebase import get_current_user
-from models.db_models import User, EcoChallenge, UserChallenge, ChallengeStatus
+from models.db_models import ChallengeStatus, EcoChallenge, User, UserChallenge
 from models.schemas import EcoChallengeResponse, UserChallengeResponse
 
 router = APIRouter()
 
 
-@router.get('', response_model=List[EcoChallengeResponse])
+@router.get('', response_model=list[EcoChallengeResponse])
 async def list_challenges(
     db: AsyncSession = Depends(get_db)
 ):
@@ -42,7 +43,7 @@ async def start_challenge(
     stmt_challenge = select(EcoChallenge).where(EcoChallenge.id == id, EcoChallenge.is_active == True)
     res_challenge = await db.execute(stmt_challenge)
     challenge = res_challenge.scalars().first()
-    
+
     if not challenge:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -56,7 +57,7 @@ async def start_challenge(
     )
     res_enroll = await db.execute(stmt_enroll)
     existing = res_enroll.scalars().first()
-    
+
     if existing:
         if existing.status == ChallengeStatus.active:
             raise HTTPException(
@@ -79,11 +80,11 @@ async def start_challenge(
     )
     db.add(enrollment)
     await db.commit()
-    
+
     # Load relationship for response
     stmt_load = select(UserChallenge).options(selectinload(UserChallenge.challenge)).where(UserChallenge.id == enrollment.id)
     res_load = await db.execute(stmt_load)
-    
+
     return res_load.scalars().first()
 
 
@@ -109,7 +110,7 @@ async def update_challenge_progress(
     )
     res = await db.execute(stmt)
     enrollment = res.scalars().first()
-    
+
     if not enrollment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -123,7 +124,7 @@ async def update_challenge_progress(
         )
 
     enrollment.progress = progress
-    
+
     # Check if target is met
     if enrollment.progress >= enrollment.challenge.target_value:
         enrollment.status = ChallengeStatus.completed

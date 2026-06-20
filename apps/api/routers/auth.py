@@ -4,6 +4,7 @@ Authentication syncing endpoint.
 """
 
 from fastapi import APIRouter, Depends
+
 from core.firebase import get_current_user
 from models.db_models import User
 from models.schemas import UserResponse

@@ -6,9 +6,10 @@ Baseline footprint endpoints.
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
 from core.database import get_db
 from core.firebase import get_current_user
-from models.db_models import User, Baseline
+from models.db_models import Baseline, User
 from models.schemas import BaselineCreate, BaselineResponse
 from services.baseline_service import calculate_baseline_values
 
@@ -42,7 +43,7 @@ async def create_baseline(
     db.add(baseline)
     await db.commit()
     await db.refresh(baseline)
-    
+
     return baseline
 
 
@@ -60,11 +61,11 @@ async def get_current_baseline(
     )
     result = await db.execute(stmt)
     baseline = result.scalars().first()
-    
+
     if not baseline:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No active baseline found. Please complete the onboarding quiz."
         )
-        
+
     return baseline

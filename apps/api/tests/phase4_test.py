@@ -4,19 +4,20 @@ Phase 4 integration tests for streaks, Gemini service, and cron tasks.
 Run from apps/api/ directory: python tests/phase4_test.py
 """
 
-import sys
-import os
 import asyncio
+import os
+import sys
 from datetime import date, timedelta
+
 from httpx import AsyncClient
 from sqlalchemy import delete
 
 # Ensure the parent directory is in sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from main import app
 from core.config import settings
 from core.database import AsyncSessionLocal
+from main import app
 from models.db_models import User
 
 auth_headers = {"Authorization": "Bearer mock-token"}
@@ -27,7 +28,7 @@ async def run_all_tests():
     print("=" * 60)
     print("  PHASE 4 -- ADMINISTRATIVE & STREAKS INTEGRATION TEST SUITE")
     print("=" * 60)
-    
+
     # Clean up mock user from previous runs to ensure test isolation
     async with AsyncSessionLocal() as session:
         async with session.begin():
@@ -35,7 +36,7 @@ async def run_all_tests():
     print("[INFO] Cleaned up mock user from database")
 
     async with AsyncClient(app=app, base_url="http://test") as client:
-        
+
         # 1. First sync user.
         resp = await client.post("/api/auth/sync", headers=auth_headers)
         assert resp.status_code == 200, f"Sync failed: {resp.text}"

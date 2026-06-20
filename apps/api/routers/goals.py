@@ -4,14 +4,15 @@ Annual reduction goals and pace projection.
 """
 
 from datetime import date
-from typing import Any, Dict
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import and_, func
+
 from core.database import get_db
 from core.firebase import get_current_user
-from models.db_models import User, UserGoal, Baseline, DailyLog
+from models.db_models import Baseline, DailyLog, User, UserGoal
 from models.schemas import GoalCreate, GoalResponse
 
 router = APIRouter()
@@ -99,7 +100,7 @@ async def get_active_goal(
     # Sum daily logs for the current year
     current_year = date.today().year
     start_of_year = date(current_year, 1, 1)
-    
+
     stmt_logs = select(func.sum(DailyLog.total_co2e)).where(
         and_(
             DailyLog.user_id == current_user.id,

@@ -3,8 +3,9 @@ apps/api/core/database.py
 Async SQLAlchemy engine and session factory wired to PostgreSQL via asyncpg.
 """
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
+
 from .config import settings
 
 # Convert postgresql:// → postgresql+asyncpg:// for async driver

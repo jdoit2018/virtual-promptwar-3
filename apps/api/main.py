@@ -4,12 +4,13 @@ FastAPI application entry point for the Carbon Footprint Awareness Platform.
 """
 
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import settings
 from core.database import init_db
-from routers import auth, users, baselines, logs, goals, challenges, notifications, internal
+from routers import auth, baselines, challenges, goals, internal, logs, notifications, users
 
 
 @asynccontextmanager

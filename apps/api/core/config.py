@@ -4,8 +4,8 @@ Application settings loaded from environment variables via pydantic-settings.
 """
 
 from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
 
 # Resolve root .env.local regardless of where uvicorn is invoked from
 _ROOT_ENV = Path(__file__).resolve().parent.parent.parent.parent / ".env.local"
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
 
     # CORS — comma-separated origins
     @property
-    def CORS_ORIGINS(self) -> List[str]:
+    def CORS_ORIGINS(self) -> list[str]:
         return ["http://localhost:3000", "https://yourdomain.com"]
 
 

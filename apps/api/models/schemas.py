@@ -4,12 +4,17 @@ Pydantic validation schemas for API inputs and outputs.
 """
 
 from datetime import date, datetime
-from typing import Optional, List, Any, Dict
-from pydantic import BaseModel, ConfigDict, Field, EmailStr, model_validator
+from typing import Any
 from uuid import UUID
 
-from models.db_models import AuthProviderType, ChallengeDifficulty, ChallengeStatus, NotificationType, NotificationChannel
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
+from models.db_models import (
+    ChallengeDifficulty,
+    ChallengeStatus,
+    NotificationChannel,
+    NotificationType,
+)
 
 # ── Common Config ────────────────────────────────────────────────────────────
 
@@ -21,10 +26,10 @@ class OurBaseModel(BaseModel):
 
 class UserBase(OurBaseModel):
     email: EmailStr
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    username: Optional[str] = None
-    avatar_url: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    username: str | None = None
+    avatar_url: str | None = None
     region_code: str = "GLOBAL"
 
 
@@ -65,11 +70,11 @@ class BaselineResponse(OurBaseModel):
     id: UUID
     user_id: UUID
     total_co2e: float
-    housing_co2e: Optional[float]
-    transport_co2e: Optional[float]
-    diet_co2e: Optional[float]
-    consumption_co2e: Optional[float]
-    quiz_responses: Optional[Dict[str, Any]]
+    housing_co2e: float | None
+    transport_co2e: float | None
+    diet_co2e: float | None
+    consumption_co2e: float | None
+    quiz_responses: dict[str, Any] | None
     is_current: bool
     created_at: datetime
 
@@ -79,15 +84,15 @@ class BaselineResponse(OurBaseModel):
 class GoalCreate(OurBaseModel):
     target_co2e: float
     target_year: int
-    reduction_pct: Optional[float] = None
+    reduction_pct: float | None = None
 
 
 class GoalResponse(OurBaseModel):
     id: UUID
     user_id: UUID
-    baseline_id: Optional[UUID]
+    baseline_id: UUID | None
     target_co2e: float
-    reduction_pct: Optional[float]
+    reduction_pct: float | None
     target_year: int
     is_active: bool
     created_at: datetime
@@ -101,7 +106,7 @@ class LogCreate(OurBaseModel):
     category: str
     activity_type: str
     quantity: float
-    log_metadata: Optional[Dict[str, Any]] = Field(None, alias="metadata")
+    log_metadata: dict[str, Any] | None = Field(None, alias="metadata")
 
 
 class LogResponse(OurBaseModel):
@@ -110,11 +115,11 @@ class LogResponse(OurBaseModel):
     log_date: date
     category: str
     activity_type: str
-    emission_factor_id: Optional[int]
+    emission_factor_id: int | None
     quantity: float
-    total_co2e: Optional[float]
+    total_co2e: float | None
     is_estimated: bool
-    log_metadata: Optional[Dict[str, Any]] = Field(None, alias="metadata")
+    log_metadata: dict[str, Any] | None = Field(None, alias="metadata")
     created_at: datetime
 
     @model_validator(mode="before")
@@ -142,7 +147,7 @@ class LogsSummaryWeekly(OurBaseModel):
     week_start: date
     week_end: date
     total_co2e: float
-    breakdown: Dict[str, float]  # category -> total_co2e
+    breakdown: dict[str, float]  # category -> total_co2e
 
 
 # ── Challenge Schemas ─────────────────────────────────────────────────────────
@@ -155,7 +160,7 @@ class EcoChallengeResponse(OurBaseModel):
     difficulty: ChallengeDifficulty
     target_value: int
     metric_type: str
-    co2e_reward: Optional[float]
+    co2e_reward: float | None
     is_active: bool
     created_at: datetime
 
@@ -167,9 +172,9 @@ class UserChallengeResponse(OurBaseModel):
     status: ChallengeStatus
     progress: int
     started_at: datetime
-    completed_at: Optional[datetime]
-    failed_at: Optional[datetime]
-    challenge: Optional[EcoChallengeResponse] = None
+    completed_at: datetime | None
+    failed_at: datetime | None
+    challenge: EcoChallengeResponse | None = None
 
 
 # ── Notification / Register token Schemas ─────────────────────────────────────
@@ -184,11 +189,11 @@ class NotificationResponse(OurBaseModel):
     type: NotificationType
     channel: NotificationChannel
     title: str
-    body: Optional[str] = None
-    scheduled_at: Optional[datetime] = None
-    sent_at: Optional[datetime] = None
-    read_at: Optional[datetime] = None
-    notification_metadata: Optional[Dict[str, Any]] = Field(None, alias="metadata")
+    body: str | None = None
+    scheduled_at: datetime | None = None
+    sent_at: datetime | None = None
+    read_at: datetime | None = None
+    notification_metadata: dict[str, Any] | None = Field(None, alias="metadata")
     created_at: datetime
 
     @model_validator(mode="before")

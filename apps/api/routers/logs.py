@@ -4,14 +4,15 @@ Daily emission logging endpoints.
 """
 
 from datetime import date, timedelta
-from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select, and_, func
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import and_, func, select
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from core.database import get_db
 from core.firebase import get_current_user
-from models.db_models import User, DailyLog
+from models.db_models import DailyLog, User
 from models.schemas import LogCreate, LogResponse, LogsSummaryWeekly
 
 router = APIRouter()
@@ -20,43 +21,32 @@ router = APIRouter()
 async def recalculate_user_streak(db: AsyncSession, user_id: str) -> int:
     """
     Recalculates the consecutive daily logging streak for a user.
-    A streak is the number of consecutive days ending either today or yesterday
-    where the user has logged at least one activity.
+    Uses a single database query to retrieve unique log dates, avoiding N+1 roundtrips.
     """
     today = date.today()
-    current_date = today
-    
-    # Check today's logs
-    stmt = select(DailyLog).where(
-        and_(DailyLog.user_id == user_id, DailyLog.log_date == today)
+    yesterday = today - timedelta(days=1)
+
+    # Fetch all unique log dates for this user, ordered descending
+    stmt = (
+        select(DailyLog.log_date)
+        .where(DailyLog.user_id == user_id)
+        .group_by(DailyLog.log_date)
+        .order_by(DailyLog.log_date.desc())
     )
     res = await db.execute(stmt)
-    has_today = res.scalars().first() is not None
-    
-    if not has_today:
-        # Check yesterday's logs
-        yesterday = today - timedelta(days=1)
-        stmt = select(DailyLog).where(
-            and_(DailyLog.user_id == user_id, DailyLog.log_date == yesterday)
-        )
-        res = await db.execute(stmt)
-        has_yesterday = res.scalars().first() is not None
-        if not has_yesterday:
-            return 0
-        current_date = yesterday
-        
+    log_dates = {row[0] for row in res.all()} # Set of dates for O(1) lookups
+
+    if today not in log_dates and yesterday not in log_dates:
+        return 0
+
+    current_date = today if today in log_dates else yesterday
     streak = 0
-    while True:
-        stmt = select(DailyLog).where(
-            and_(DailyLog.user_id == user_id, DailyLog.log_date == current_date)
-        )
-        res = await db.execute(stmt)
-        if res.scalars().first() is None:
-            break
+    while current_date in log_dates:
         streak += 1
         current_date -= timedelta(days=1)
-        
+
     return streak
+
 
 
 @router.post('', response_model=LogResponse)
@@ -80,7 +70,7 @@ async def create_log_entry(
         log_metadata=payload.log_metadata,
         is_estimated=False
     )
-    
+
     # On conflict, update quantity and log_metadata, reset total_co2e and emission_factor_id so trigger re-evaluates
     update_stmt = insert_stmt.on_conflict_do_update(
         constraint="unique_user_date_activity",
@@ -95,22 +85,22 @@ async def create_log_entry(
     try:
         res = await db.execute(update_stmt)
         log_row = res.scalars().first()
-        
+
         # Streak Update Logic
         streak = await recalculate_user_streak(db, current_user.id)
-        
+
         # Update user's streak in the database
         stmt_user = select(User).where(User.id == current_user.id)
         res_user = await db.execute(stmt_user)
         db_user = res_user.scalars().first()
-        
+
         if db_user:
             db_user.current_streak = streak
             if streak > db_user.highest_streak:
                 db_user.highest_streak = streak
 
         await db.commit()
-        
+
         # Refresh to pull fields computed by the database trigger
         await db.refresh(log_row)
         return log_row
@@ -122,11 +112,11 @@ async def create_log_entry(
         )
 
 
-@router.get('', response_model=List[LogResponse])
+@router.get('', response_model=list[LogResponse])
 async def get_logs(
-    log_date: Optional[date] = Query(None, description="Filter by specific date"),
-    start_date: Optional[date] = Query(None, description="Start date of range"),
-    end_date: Optional[date] = Query(None, description="End date of range"),
+    log_date: date | None = Query(None, description="Filter by specific date"),
+    start_date: date | None = Query(None, description="Start date of range"),
+    end_date: date | None = Query(None, description="End date of range"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -134,7 +124,7 @@ async def get_logs(
     Fetches the user's daily logs. If no parameters are passed, defaults to the last 30 days of logs.
     """
     stmt = select(DailyLog).where(DailyLog.user_id == current_user.id)
-    
+
     if log_date:
         stmt = stmt.where(DailyLog.log_date == log_date)
     elif start_date and end_date:
@@ -151,7 +141,7 @@ async def get_logs(
 
 @router.get('/summary/weekly', response_model=LogsSummaryWeekly)
 async def get_weekly_summary(
-    end_date: Optional[date] = Query(None, description="End date for the weekly calculation. Defaults to today."),
+    end_date: date | None = Query(None, description="End date for the weekly calculation. Defaults to today."),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):

@@ -4,6 +4,7 @@ Service for AI eco-coaching advice generation using Google Gemini.
 """
 
 import google.generativeai as genai
+
 from core.config import settings
 
 # Configure Gemini if key is provided

@@ -4,17 +4,18 @@ Phase 2 async integration tests for all 13 REST endpoints.
 Run from apps/api/ directory: python tests/phase2_test.py
 """
 
-import sys
-import os
 import asyncio
+import os
+import sys
+
 from httpx import AsyncClient
 from sqlalchemy import delete
 
 # Ensure the parent directory is in sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from main import app
 from core.database import AsyncSessionLocal
+from main import app
 from models.db_models import User
 
 auth_headers = {"Authorization": "Bearer mock-token"}
@@ -24,7 +25,7 @@ async def run_all_tests():
     print("=" * 60)
     print("  PHASE 2 -- ASYNC ENDPOINT INTEGRATION TEST SUITE")
     print("=" * 60)
-    
+
     # Clean up mock user from previous runs to ensure test isolation
     async with AsyncSessionLocal() as session:
         async with session.begin():
@@ -32,7 +33,7 @@ async def run_all_tests():
     print("[INFO] Cleaned up mock user from database")
 
     async with AsyncClient(app=app, base_url="http://test") as client:
-        
+
         # 1. Verify that endpoints reject request without token.
         resp = await client.get("/api/users/me")
         assert resp.status_code in (401, 403), f"Test 1 failed: status code {resp.status_code}"
@@ -163,8 +164,8 @@ async def run_all_tests():
 
         # Update progress (less than target)
         resp = await client.patch(
-            f"/api/challenges/{challenge_id}/progress", 
-            json={"progress": target_value - 1}, 
+            f"/api/challenges/{challenge_id}/progress",
+            json={"progress": target_value - 1},
             headers=auth_headers
         )
         assert resp.status_code == 200, f"Test 12 Progress failed: {resp.text}"
@@ -172,8 +173,8 @@ async def run_all_tests():
 
         # Complete the challenge
         resp = await client.patch(
-            f"/api/challenges/{challenge_id}/progress", 
-            json={"progress": target_value}, 
+            f"/api/challenges/{challenge_id}/progress",
+            json={"progress": target_value},
             headers=auth_headers
         )
         assert resp.status_code == 200, f"Test 12 Completion failed: {resp.text}"

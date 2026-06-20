@@ -4,12 +4,14 @@ User profile management router.
 """
 
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
+
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
 from core.database import get_db
 from core.firebase import get_current_user
-from models.db_models import User, Baseline, DailyLog, UserChallenge
+from models.db_models import Baseline, DailyLog, User, UserChallenge
 from models.schemas import UserResponse
 
 router = APIRouter()
@@ -75,17 +77,17 @@ async def export_user_data(
         ],
         "daily_logs": [
             {
-                "id": str(l.id),
-                "log_date": l.log_date.isoformat() if l.log_date else None,
-                "category": l.category,
-                "activity_type": l.activity_type,
-                "quantity": float(l.quantity),
-                "total_co2e": float(l.total_co2e) if l.total_co2e is not None else None,
-                "is_estimated": l.is_estimated,
-                "metadata": l.log_metadata,
-                "created_at": l.created_at.isoformat() if l.created_at else None
+                "id": str(log.id),
+                "log_date": log.log_date.isoformat() if log.log_date else None,
+                "category": log.category,
+                "activity_type": log.activity_type,
+                "quantity": float(log.quantity),
+                "total_co2e": float(log.total_co2e) if log.total_co2e is not None else None,
+                "is_estimated": log.is_estimated,
+                "metadata": log.log_metadata,
+                "created_at": log.created_at.isoformat() if log.created_at else None
             }
-            for l in logs
+            for log in logs
         ],
         "user_challenges": [
             {

@@ -4,19 +4,20 @@ Notifications and FCM device token registration.
 """
 
 from datetime import datetime
-from typing import List
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
 from core.database import get_db
 from core.firebase import get_current_user
-from models.db_models import User, Notification, NotificationType, NotificationChannel
+from models.db_models import Notification, NotificationChannel, NotificationType, User
 from models.schemas import FCMTokenRegister, NotificationResponse
 
 router = APIRouter()
 
 
-@router.get('', response_model=List[NotificationResponse])
+@router.get('', response_model=list[NotificationResponse])
 async def get_notifications(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)

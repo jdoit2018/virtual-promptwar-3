@@ -4,11 +4,14 @@ Firebase Admin SDK initialisation — verifies ID tokens for all protected route
 """
 
 import firebase_admin
-from firebase_admin import credentials, auth as firebase_auth
-from fastapi import HTTPException, Security, status
+from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from firebase_admin import auth as firebase_auth
+from firebase_admin import credentials
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
+from .database import get_db
 
 _bearer = HTTPBearer()
 
@@ -67,10 +70,6 @@ async def verify_firebase_token(
             detail=f"Authentication failed: {str(e)}",
         )
 
-
-from fastapi import Depends
-from core.database import get_db
-from sqlalchemy.ext.asyncio import AsyncSession
 
 async def get_current_user(
     token_claims: dict = Depends(verify_firebase_token),

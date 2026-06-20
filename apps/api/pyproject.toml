@@ -1,0 +1,20 @@
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+]
+ignore = [
+    "B008", # Do not perform function call in argument defaults (standard for FastAPI Depends/Query)
+    "E501", # Line too long
+    "B904", # Raise exceptions with raise ... from err (not preferred for user-facing HTTPExceptions)
+    "UP042",# Inheriting from both str and Enum (required for python <3.11 compatibility)
+    "E712", # Avoid equality comparisons to True (required for SQLAlchemy query compiler dialect safety)
+]
